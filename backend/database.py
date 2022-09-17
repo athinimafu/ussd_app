@@ -1,4 +1,7 @@
 from firebase_admin import credentials, firestore, initialize_app
+from google.cloud import firestore as f_store
+
+from utils import hash_pin
 
 # import pyrebase
 
@@ -11,49 +14,52 @@ transaction_ref = db.collection('transactions')
 
 
 class User:
-
     @staticmethod
     def query_user_document(phone_num):
         return users.document(phone_num)
-    
+
     @staticmethod
     def create(phone_num, name, id, pin):
-        pass
+        hashed_pin = hash_pin(pin)
+        user_data = {
+            "name": name,
+            "id": id,
+            "pin": hashed_pin
+        }
+        user = User.query_user_document(phone_num)
+        user_obj = user.get()
+        if user_obj.to_dict() is None:
+            user.set(user_data)
 
     @staticmethod
     def get(phone_num):
         user = User.query_user_document(phone_num).get()
         if user:
-            print(user.to_dict())
             return user.to_dict()
         else:
             return None
 
     @staticmethod
-    def change_pin():
-        pass
+    def change_pin(phone_num, new_pin):
+        queried_user = User.query_user_document(phone_num)
+        if queried_user:
+            new_pin_hash = hash_pin(new_pin)
+            queried_user.update({"pin": new_pin_hash})
+            return True
+        return False
 
     @staticmethod
 
     def transfer(sender,reciever, balance):
         pass
-    def transfer(phone_num, balance):
-        
-        user = User.query_user_document(phone_num)
-        # print(user_stream)
-        if user:
-            print()
-            print("before")
-            
-            # print(user.balance)
-            # user.update("phone_num",{u"balance": balance})
-            user.update({u"balance": balance})
-            
-            print("After")
-            # print(user.balance)
-            # print(user["phone_num"])
-        # pass
-        return 
+    def transfer(sender_num, receiver_num, balance):
+        sender = User.query_user_document(sender_num)
+        receiver = User.query_user_document(receiver_num)
+        if sender and receiver:
+            sender_dict = sender.get().to_dict()
+            if sender_dict["balance"] >= balance:
+                sender.update({u"balance": balance})
+                receiver.update({u"balance": f_store.Increment(balance)})
 
     @staticmethod
     def get_balance(phone_num):
@@ -63,6 +69,19 @@ class User:
     @staticmethod
     def delete(phone_num):
         pass
+
+    @staticmethod
+    def get_pin(phone_num):
+        user = User.get(phone_num)
+        if user:
+            return user.get("pin", None)
+        return None
+
+    @staticmethod
+    def verify_pin(hashed_pin, pin):
+        if hash_pin(pin) == hashed_pin:
+            return True
+        return False
 
 
 class Transaction:
