@@ -3,13 +3,8 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 from flask import request
-import africastalking
 
 load_dotenv()
-
-AT_SANDBOX = os.environ.get("AT_SANDBOX")
-AT_KEY = os.environ.get("AT_KEY")
-africastalking.initialize(AT_SANDBOX, AT_KEY)
 
 app = Flask(__name__)
 
