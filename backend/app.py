@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask import request
 
-from database import users
+from database import Transaction, User, users
 
 load_dotenv()
 
@@ -16,6 +16,8 @@ def home():
 
 @app.route('/callback', methods=["GET", "POST"])
 def callback():
+    User.delete("0660277901")
+    Transaction.get("0H3pzryAVNct0nbFfn68")
     user_phone_number = request.values.get("phoneNumber")
     session_code = request.values.get("sessionCode")
     serviceId = request.values.get("serviceCode")

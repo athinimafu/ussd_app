@@ -1,4 +1,4 @@
-from firebase_admin import credentials, firestore, initialize_app
+from firebase_admin import credentials, firestore, initialize_app, auth
 from google.cloud import firestore as f_store
 
 from utils import hash_pin
@@ -50,8 +50,6 @@ class User:
 
     @staticmethod
 
-    def transfer(sender,reciever, balance):
-        pass
     def transfer(sender_num, receiver_num, balance):
         sender = User.query_user_document(sender_num)
         receiver = User.query_user_document(receiver_num)
@@ -68,7 +66,10 @@ class User:
 
     @staticmethod
     def delete(phone_num):
-        pass
+        user = User.query_user_document(phone_num)
+        if user:
+            user.delete()
+        return
 
     @staticmethod
     def get_pin(phone_num):
@@ -86,8 +87,14 @@ class User:
 
 class Transaction:
     @staticmethod
+    def query_trans_document(transac_id):
+        return transaction_ref.document(transac_id)
+    
+    @staticmethod
     def get(transac_id):
-        pass
+        trans = Transaction.query_trans_document(transac_id)
+        trans_dict = trans.get().to_dict()
+        return trans_dict
 
 
 class Business(User):
