@@ -28,7 +28,7 @@ class User:
         pass
 
     @staticmethod
-    def transfer(phone_num, balance):
+    def transfer(sender,reciever, balance):
         pass
 
     @staticmethod
@@ -48,5 +48,17 @@ class Transaction:
 
 class Business(User):
     @staticmethod
+    def get(phone_num):
+        business_stream =  business_ref.where(u"phone_num", u"==", f'u{phone_num}').stream()
+        if business_stream:
+            for business in business_stream:
+                return business.to_dict()
+        return None
+
+    @staticmethod
     def deposit(recipient, amount):
+        user_stream = users.where(u"phone_num",u"==",f'u{recipient}').stream()
+        for user in user_stream:
+            user.update({u"balance":amount})
+            return
         pass
