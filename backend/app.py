@@ -1,8 +1,8 @@
-import os
-
 from dotenv import load_dotenv
 from flask import Flask
 from flask import request
+
+from backend.database import users
 
 load_dotenv()
 
