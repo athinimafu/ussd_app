@@ -1,4 +1,5 @@
-from database import users
+import hashlib
+from database import users,User
 
 def user_in_db(phone_number):
     #checks wether the user doc is already present in the database.
@@ -23,13 +24,15 @@ def user_registration(properties):
     name,_id,pin,confirmPin,phoneNumber = properties
     user = {
         name,
-        pin,
         phoneNumber
     }
-    user["id"] = _id
     
+    user["id"] = _id
+
     if pin != confirmPin:
         return "pin and confirmation pin doesn't match"
+
+    user["pin"] = hashlib.sha256(pin).digest()
 
     if user_in_db(phoneNumber):
         return "phone number already registered"
@@ -38,7 +41,17 @@ def user_registration(properties):
     return
 
 
-def user_login(pin):
+def user_login(phone_number,pin):
     #TODO: login to session and check whether pin is valid.
-    return
+    user_inst = User()
+    user_doc = user_inst.get(phone_number)
+    if user_doc:
+        
+        user_doc = user_doc.to_dict() 
+        if user_doc["pin"] == hashlib.sha256(pin).digest():
+            return [ 0," login successful! "]
+        else: 
+            return [ 1," invalid pin! " ]
+    return [2," user is not registered! "]
+
 
