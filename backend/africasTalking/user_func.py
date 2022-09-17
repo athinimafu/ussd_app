@@ -37,7 +37,7 @@ def user_registration(properties):
     if user_in_db(phoneNumber):
         return "phone number already registered"
     #TODO: insert into database then return SUCCESS or FAILURE
-    users.add(user)
+    User.create(phoneNumber,name,_id,pin)
     return
 
 
