@@ -57,7 +57,8 @@ class User:
 
     @staticmethod
     def get_balance(phone_num):
-        pass
+        user = User.query_user_document(phone_num)
+        return user['phone_num'] if user else None
 
     @staticmethod
     def delete(phone_num):
@@ -73,16 +74,14 @@ class Transaction:
 class Business(User):
     @staticmethod
     def get(phone_num):
-        business_stream =  business_ref.where(u"phone_num", u"==", f'u{phone_num}').stream()
-        if business_stream:
-            for business in business_stream:
-                return business.to_dict()
+        business = User.get(phone_num)
+        if business:
+            return business.to_dict()
         return None
 
     @staticmethod
     def deposit(recipient, amount):
-        user_stream = users.where(u"phone_num",u"==",f'u{recipient}').stream()
-        for user in user_stream:
-            user.update({u"balance":amount})
-            return
-        pass
+        user = User.get(recipient)
+        if user:
+            user.update({u"balance":user["amount"]+amount})
+        return
