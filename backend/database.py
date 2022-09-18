@@ -57,7 +57,7 @@ class User:
         receiver = User.query_user_document(receiver_num)
         if sender.get().exists and receiver.get().exists:
             sender_dict = sender.get().to_dict()
-            if sender_dict["balance"] >= amount:
+            if int(sender_dict["balance"]) >= amount:
                 sender.update({u"balance": f_store.Increment(-amount)})
                 receiver.update({u"balance": f_store.Increment(amount)})
                 Transaction.create(sender, receiver, amount)

@@ -38,8 +38,7 @@ def callback():
         return response
 
     text_array = text.split("*")
-    if len(text_array) >= 2 and text_array[0] == "1":
-        print("HANDLE LOGIN")
+    if text_array[0] == "1":
         user_pin = text_array[1]
         user = User.get(user_phone_number)
         if user:
@@ -50,14 +49,13 @@ def callback():
                 return "END Incorrect pin."
         else:
             return "END Account does not exist. Please register first."
-    if len(text_array) == 2 and text_array[0] == "2":
+    if text_array[0] == "2":
         return handle_reg(request, user_phone_number)
     return "END Invalid option selected"
 
 
 def handle_logged_in_user(request, phone_num):
     text_array = request.values.get('text').split('*')
-    print(text_array)
     if len(text_array) == 2:
         response = ""
         response += "CON 1. send money\n"
@@ -75,7 +73,6 @@ def handle_logged_in_user(request, phone_num):
 
 def handle_money_send(request, sender_phone_num):
     text_array = request.values.get('text').split('*')
-    print("SSS",text_array)
     if text_array[0] == "1" and text_array[2] == "1" and len(text_array) == 3:
         response = ""
         response += "CON Enter recipient's phone number"
@@ -87,11 +84,10 @@ def handle_money_send(request, sender_phone_num):
     if text_array[0] == "1" and len(text_array) == 5:
         response = ""
         recipient_phone = text_array[3]
-        amount = text_array[4]
+        amount = int(text_array[4])
         user = User.get(sender_phone_num)
-        print("HERE")
         if user:
-            if int(user["balance"]) >= int(amount):
+            if int(user["balance"]) >= amount:
                 User.transfer(sender_phone_num, recipient_phone, amount)
                 response += "END money sent"
             else:
@@ -100,38 +96,35 @@ def handle_money_send(request, sender_phone_num):
 
 
 def handle_reg(request, phone_num):
-    if (request.values.get("text") == '2'):
+    text_array = request.values.get("text").split('*')
+    if len(text_array) == 1:
         response = ""
         response += "CON Enter Name\n"
         return response
-    if (request.values.get("text").count('*') == 1):
-        print(request.values.get("text"))
-        name = ""
-        name += request.values.get("text")
+    if len(text_array) == 2:
         response = ""
         response += "CON Enter Govid\n"
         return response
-    if request.values.get("text").count('*') == 2:
-        govid = request.values.get("text")
-        print(govid)
+    if len(text_array) == 3:
         response = ""
         response += "CON Enter Pin\n"
         return response
-    if request.values.get("text").count('*') == 3:
-        pin = request.values.get("text")
+    if len(text_array) == 4:
         response = ""
         response += "CON Reenter Pin\n"
-        print(request.values.get("text"))
         return response
-    if request.values.get("text").count('*') == 4:
-        user_array = request.values.get('text').split('*')
-        uname = user_array[1]
-        rsaid = user_array[2]
-        pin = user_array[3]
+    if len(text_array) == 5:
+        uname = text_array[1]
+        rsaid = text_array[2]
+        pin = text_array[3]
+        confirm_pin = text_array[4]
+
+        if pin != confirm_pin:
+            return "END Pin does not match"
+
         User.create(phone_num, name=uname, id=rsaid, pin=pin)
         response = ""
         response += "END Fully registered\n"
-        print(request.values.get("text"))
         return response
 
 
